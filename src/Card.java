@@ -1,11 +1,24 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
 
 enum SUIT {
-    spades, hearts, diamonds, clubs
+    SPADES("♠"),
+    HEARTS("♥"),
+    DIAMONDS("♦"),
+    CLUBS("♣");
+
+    private final String symbol;
+
+    SUIT(String symbol) {
+        this.symbol = symbol;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
 }
+
 
 public class Card {
 
@@ -54,6 +67,8 @@ public class Card {
         return value;
     }
 
+    // TODO: handle if ace is drawn first
+    // TODO: auto pick based on current score - both player and dealer
     private void chooseAceValue() {
         Scanner scanner = new Scanner(System.in);
 
@@ -78,6 +93,6 @@ public class Card {
     @Override
     public String toString() {
 
-        return suit + " " + rank;
+        return suit.getSymbol() + rank;
     }
 }
