@@ -10,6 +10,7 @@ enum SUIT {
 
     private final String symbol;
 
+
     SUIT(String symbol) {
         this.symbol = symbol;
     }
@@ -21,6 +22,9 @@ enum SUIT {
 
 
 public class Card {
+
+    HelperClass helper = new HelperClass();
+
 
     ArrayList<Card> deck = new ArrayList<>(52);
     String[] allRanks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
@@ -73,7 +77,7 @@ public class Card {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.print("You got an Ace! Choose its value (1 or 11): ");
+            helper.headline("You got an Ace! Choose its value (1 or 11): ");
 
             String input = scanner.nextLine().trim();
 
@@ -85,7 +89,7 @@ public class Card {
                 this.value = 11;
                 break;
             } else {
-                System.out.println("Invalid choice. Please type exactly 1 or 11.");
+                helper.headline("Invalid choice. Please type exactly 1 or 11.");
             }
         }
     }
