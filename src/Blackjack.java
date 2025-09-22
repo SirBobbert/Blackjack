@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Blackjack {
+public class Blackjack implements iBlackjackMethods{
 
     int playerScore;
     int dealerScore;
@@ -8,18 +8,33 @@ public class Blackjack {
     ArrayList<Card> deck = new ArrayList<>(52);
 
 
-
     public void play() {
 
-        Card deck = new Card();
+        this.deck = new Card().createDeck();
 
-        deck.createDeck();
 
-        deck.printDeck();
+        for (Card x : deck) {
+            System.out.println(x);
+        }
     }
 
-    public ArrayList<Card> shuffleDeck() {
-        return deck;
+    @Override
+    public void hit() {
+
     }
 
+    @Override
+    public void stand() {
+
+    }
+
+    @Override
+    public void bust() {
+
+    }
+
+    @Override
+    public void push() {
+
+    }
 }

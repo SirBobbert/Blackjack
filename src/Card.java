@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 
 enum SUIT {
     spades, hearts, diamonds, clubs
@@ -19,7 +20,7 @@ public class Card {
         this.suit = suit;
     }
 
-    public void createDeck() {
+    public ArrayList<Card> createDeck() {
         for (SUIT s : SUIT.values()) {
             for (int i = 0; i < 13; i++) {
                 this.suit = s;
@@ -27,12 +28,9 @@ public class Card {
                 deck.add(new Card(this.rank, this.suit));
             }
         }
-    }
 
-    public void printDeck() {
-        for (Card card : deck) {
-            System.out.println(card.toString());
-        }
+        Collections.shuffle(deck);
+        return deck;
     }
 
     @Override
@@ -40,4 +38,6 @@ public class Card {
         return "rank='" + rank + '\'' +
                 ", suit=" + suit;
     }
+
+
 }
