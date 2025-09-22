@@ -14,8 +14,10 @@ public class Blackjack implements iBlackjackMethods{
 
 
         for (Card x : deck) {
-            System.out.println(x);
+            System.out.println(x + " " + x.getValue());
         }
+
+
     }
 
     @Override
