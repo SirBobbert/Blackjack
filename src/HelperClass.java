@@ -1,4 +1,7 @@
 public class HelperClass {
+
+    // TODO: Create "header" for main function
+    // TODO: Create "under-title" for functioncall
     private static final int BOX_WIDTH = 60;     // inner content width
     private static final char H = '─';           // use '-' if you prefer ASCII
 

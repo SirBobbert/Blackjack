@@ -1,6 +1,6 @@
 public interface iBlackjackMethods {
 
-    public void hit(int x);
+    public void hit();
 
     public void stand();
 

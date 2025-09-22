@@ -1,30 +1,7 @@
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Scanner;
-
-enum SUIT {
-    SPADES("♠"),
-    HEARTS("♥"),
-    DIAMONDS("♦"),
-    CLUBS("♣");
-
-    private final String symbol;
-
-
-    SUIT(String symbol) {
-        this.symbol = symbol;
-    }
-
-    public String getSymbol() {
-        return symbol;
-    }
-}
-
 
 public class Card {
-
-    HelperClass helper = new HelperClass();
-
 
     ArrayList<Card> deck = new ArrayList<>(52);
     String[] allRanks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
@@ -69,29 +46,6 @@ public class Card {
         }
 
         return value;
-    }
-
-    // TODO: handle if ace is drawn first
-    // TODO: auto pick based on current score - both player and dealer
-    private void chooseAceValue() {
-        Scanner scanner = new Scanner(System.in);
-
-        while (true) {
-            helper.headline("You got an Ace! Choose its value (1 or 11): ");
-
-            String input = scanner.nextLine().trim();
-
-            // Check if it's "1" or "11"
-            if (input.equals("1")) {
-                this.value = 1;
-                break;
-            } else if (input.equals("11")) {
-                this.value = 11;
-                break;
-            } else {
-                helper.headline("Invalid choice. Please type exactly 1 or 11.");
-            }
-        }
     }
 
     @Override

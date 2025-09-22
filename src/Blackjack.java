@@ -3,6 +3,10 @@ import java.util.Scanner;
 
 public class Blackjack implements iBlackjackMethods {
 
+    // TODO: When player hit 21, dealer still has to play their turn
+    // TODO: Make it more clear when play wins if it was beacuse he got 21 or dealer busted e.g
+    // TODO: Refactoring - KISS/DRY
+
     int playerScore;
     int dealerScore;
 
@@ -42,7 +46,7 @@ public class Blackjack implements iBlackjackMethods {
 
                 switch (choice) {
                     case 1 -> {
-                        hit(i);
+                        hit();
                         if (bust()) {
                             helper.headline("BUST! Final score: " + playerScore);
                             return;
@@ -138,6 +142,7 @@ public class Blackjack implements iBlackjackMethods {
     public void dealerDrawCard() {
         Card card = deck.getFirst();
 
+        //TODO: Automatically select A value based on current dealerScore
         if (card.rank.equals("A")) {
             card.value = 11;
         }
@@ -168,8 +173,8 @@ public class Blackjack implements iBlackjackMethods {
 
     // adds another card to hand
     @Override
-    public void hit(int x) {
-        Card currentCard = deck.get(x);
+    public void hit() {
+        Card currentCard = deck.getFirst();
 
         helper.headline("Player hit - you drew: " + currentCard);
 
