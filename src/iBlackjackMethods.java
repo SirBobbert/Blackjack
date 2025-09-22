@@ -1,10 +1,10 @@
 public interface iBlackjackMethods {
 
-    public void hit();
+    public void hit(int x);
 
     public void stand();
 
-    public void bust();
+    public boolean bust();
 
     public void push();
 

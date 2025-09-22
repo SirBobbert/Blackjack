@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
 
@@ -47,7 +48,7 @@ public class Card {
             case "8" -> this.value = 8;
             case "9" -> this.value = 9;
             case "10", "K", "J", "Q" -> this.value = 10;
-            case "A" -> chooseAceValue();
+            case "A" -> this.value = 11;
         }
 
         return value;
@@ -76,7 +77,7 @@ public class Card {
 
     @Override
     public String toString() {
-        return "rank='" + rank + '\'' +
-                ", suit=" + suit;
+
+        return suit + " " + rank;
     }
 }
