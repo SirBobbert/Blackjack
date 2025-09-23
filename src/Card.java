@@ -1,56 +1,32 @@
-import java.util.ArrayList;
-import java.util.Collections;
+public final class Card {
 
-public class Card {
+    private final RANK rank;
+    private final SUIT suit;
 
-    ArrayList<Card> deck = new ArrayList<>(52);
-    String[] allRanks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
-    String rank;
-    SUIT suit;
-    int value;
-
-    public Card() {
-    }
-
-    public Card(String rank, SUIT suit) {
+    public Card(RANK rank, SUIT suit) {
+        if (rank == null || suit == null) throw new IllegalArgumentException("rank/suit null");
         this.rank = rank;
         this.suit = suit;
     }
 
-    public ArrayList<Card> createDeck() {
-        for (SUIT s : SUIT.values()) {
-            for (int i = 0; i < 13; i++) {
-                this.suit = s;
-                this.rank = allRanks[i];
-                deck.add(new Card(this.rank, this.suit));
-            }
-        }
+    public RANK getRank() {
+        return rank;
+    }
 
-        Collections.shuffle(deck);
-        return deck;
+    public SUIT getSuit() {
+        return suit;
     }
 
     public int getValue() {
+        return rank.baseValue;
+    }
 
-        switch (this.rank.toUpperCase()) {
-            case "2" -> this.value = 2;
-            case "3" -> this.value = 3;
-            case "4" -> this.value = 4;
-            case "5" -> this.value = 5;
-            case "6" -> this.value = 6;
-            case "7" -> this.value = 7;
-            case "8" -> this.value = 8;
-            case "9" -> this.value = 9;
-            case "10", "K", "J", "Q" -> this.value = 10;
-            case "A" -> this.value = 11;
-        }
-
-        return value;
+    public boolean isAce() {
+        return rank.isAce();
     }
 
     @Override
     public String toString() {
-
         return suit.getSymbol() + rank;
     }
 }

@@ -1,208 +1,138 @@
-import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Blackjack implements iBlackjackMethods {
-
-    // TODO: When player hit 21, dealer still has to play their turn
-    // TODO: Make it more clear when play wins if it was beacuse he got 21 or dealer busted e.g
-    // TODO: Refactoring - KISS/DRY
-
-    int playerScore;
-    int dealerScore;
-
-    HelperClass helper = new HelperClass();
-
-    private ArrayList<Card> deck = new ArrayList<>(52);
-
-    private final ArrayList<Card> playerHand = new ArrayList<>(52);
-    private final ArrayList<Card> dealerHand = new ArrayList<>(52);
+public class Blackjack {
 
     private final Scanner scanner = new Scanner(System.in);
+    private final UI ui = new UI();
+
+    private final Hand playerHand = new Hand();
+    private final Hand dealerHand = new Hand();
+
+    private Deck deck;
 
     public void play() {
+        this.deck = new Deck();
+        dealersInitialAction();
 
-        this.deck = new Card().createDeck();
+        // check for nat bj
+        if (playerHand.isBlackjack() || dealerHand.isBlackjack()) {
+            finishRound();
+            return;
+        }
 
+        // Players turn
         while (true) {
+            int choice = promptAction();
 
-            dealersInitialAction();
-
-            if (playerScore == 21) {
-                helper.headline("YOU WON!");
-                break;
-            }
-
-            if (playerScore > 21) {
-                helper.headline("YOU LOST!");
-                break;
-            }
-
-            for (int i = 0; i < deck.size(); i++) {
-
-                helper.headline("your hand: " + playerHand + " | TOTAL SCORE: " + playerScore);
-                helper.headline("what would you like to do?");
-                printOptions();
-                int choice = scanner.nextInt();
-
-                switch (choice) {
-                    case 1 -> {
-                        hit();
-                        if (bust()) {
-                            helper.headline("BUST! Final score: " + playerScore);
-                            return;
-                        }
-                        if (playerScore == 21) {
-                            helper.headline("You win!");
-                            return;
-                        }
-                    }
-                    case 2 -> {
-                        stand();
-                        revealSecondCard();
-                        dealerCompleteHand();
-                        boolean roundOver = concludeGame();
-                        if (roundOver) return;
-                    }
+            if (choice == 1) {
+                hit();
+                if (playerHand.isBust()) {
+                    finishRound();
+                    return;
                 }
+
+                if (playerHand.value() == 21) {
+                    ui.info("You got 21! Dealers turn..");
+                    break;
+                }
+
+            } else if (choice == 2) {
+                stand();
+                break;
             }
         }
+
+        playDealerTurn();
+        finishRound();
     }
 
-    private boolean concludeGame() {
-        // Dealer must hit until 17 or more
-        while (dealerScore < 17) {
-            dealerDrawCard();
-//            helper.headline("Dealer hit - " + dealerHand.getLast().toString());
-            dealerCompleteHand();
-        }
+    private void hit() {
+        Card c = deck.draw();
+        ui.action("Player", "hit – drew: " + c);
+        playerHand.add(c);
+        showPlayerHand();
+    }
 
-        // Resolve outcomes
-        if (dealerScore > 21) {
-            helper.headline("Dealer busts! You win!");
-            return true;
-        }
-
-        if (dealerScore > playerScore) {
-            helper.headline("Dealer win!");
-            return true;
-        }
-
-        if (dealerScore < playerScore && playerScore <= 21) {
-            helper.headline("You win!");
-            return true;
-        }
-
-        if (dealerScore == 21 && playerScore == 21) {
-            helper.headline("Dealer win!");
-            return true;
-        }
-
-        // Equal totals
-        helper.headline("Push!");
-        return true;
+    private void stand() {
+        ui.action("Player", "stands");
     }
 
     public void dealersInitialAction() {
         playerDrawCard();
-        dealerDrawCard();
+        dealerDrawCard(false);
         playerDrawCard();
-        dealerDrawCard();
-        revealFirstCard();
+        dealerDrawCard(true);
+        showDealerHand(true);
     }
 
     public void playerDrawCard() {
-        Card card = deck.getFirst();
-
-        if (card.rank.equals("A")) {
-            while (true) {
-                helper.headline("You got an Ace! Choose its value (1 or 11): ");
-
-                String input = scanner.nextLine().trim();
-
-                // Check if it's "1" or "11"
-                if (input.equals("1")) {
-                    card.value = 1;
-                    break;
-                } else if (input.equals("11")) {
-                    card.value = 11;
-                    break;
-                } else {
-                    helper.headline("Invalid choice. Please type exactly 1 or 11.");
-                }
-            }
-        }
-
+        Card card = deck.draw();
         playerHand.add(card);
-        playerScore += card.getValue();
-        deck.removeFirst();
-        helper.headline("Player draw!");
-        playerCompleteHand();
+        ui.action("Player", "draw – " + card);
+        showPlayerHand();
+    }
+
+    private void showPlayerHand() {
+        ui.showHand("Player", playerHand, false);
+    }
+
+    public void dealerDrawCard(boolean reveal) {
+        Card card = deck.draw();
+        dealerHand.add(card);
+        ui.action("Dealer", reveal ? ("draw – " + card) : "draw – [HIDDEN]");
     }
 
     public void dealerDrawCard() {
-        Card card = deck.getFirst();
+        dealerDrawCard(true);
+    }
 
-        //TODO: Automatically select A value based on current dealerScore
-        if (card.rank.equals("A")) {
-            card.value = 11;
+    private void showDealerHand(boolean hideHole) {
+        ui.showHand("Dealer", dealerHand, hideHole);
+    }
+
+    private void playDealerTurn() {
+        Card hole = dealerHand.cards().getFirst();
+        ui.action("Dealer", "reveals hole card – " + hole);
+
+        showDealerHand(false);
+
+        while (dealerHand.value() < 17) {
+            dealerDrawCard();
+            showDealerHand(false);
         }
-
-        dealerHand.add(card);
-        dealerScore += card.getValue();
-        deck.removeFirst();
-        helper.headline("Dealer draw!");
     }
 
-    public void revealFirstCard() {
-        helper.headline("first dealer card revealed!");
-        helper.headline("Dealer hand: " + dealerHand.get(1) + " | Total score: " + dealerHand.get(1).getValue());
-    }
+    private int promptAction() {
+        ui.scores(playerHand, dealerHand, true);
 
-    public void revealSecondCard() {
-        helper.headline("second dealer card revealed");
-    }
-
-    public void dealerCompleteHand() {
-        helper.headline("Dealer hand: " + dealerHand + " - TOTAL SCORE: " + dealerScore);
-    }
-
-    public void playerCompleteHand() {
-        helper.headline("Player hand: " + playerHand + " - TOTAL SCORE: " + playerScore);
+        while (true) {
+            ui.menu("YOUR TURN", "hit", "stand");
+            String s = scanner.nextLine().trim().toLowerCase();
+            if (s.equals("1") || s.equals("h") || s.equals("hit")) return 1;
+            if (s.equals("2") || s.equals("s") || s.equals("stand")) return 2;
+            ui.warn("Invalid input - try again");
+        }
     }
 
 
-    // adds another card to hand
-    @Override
-    public void hit() {
-        Card currentCard = deck.getFirst();
-
-        helper.headline("Player hit - you drew: " + currentCard);
-
-        playerHand.add(currentCard);
-        playerScore += currentCard.getValue();
-        deck.remove(currentCard);
+    private void finishRound() {
+        ui.outcome(outcomeMessage());
     }
 
-    // don't add another card to hand
-    @Override
-    public void stand() {
-        helper.headline("you chose to stand");
-    }
+    private String outcomeMessage() {
+        int pv = playerHand.value();
+        int dv = dealerHand.value();
 
-    // going above 21 in score
-    @Override
-    public boolean bust() {
-        return playerScore > 21;
-    }
+        if (playerHand.isBlackjack() && dealerHand.isBlackjack()) return "PUSH — both got blackjack (" + pv + ")";
+        if (playerHand.isBlackjack()) return "YOU WIN — blackjack (" + pv + ")";
+        if (dealerHand.isBlackjack()) return "DEALER WIN — blackjack (" + dv + ")";
 
-    // both dealer and player(s) have the same scores
-    @Override
-    public void push() {
-        helper.headline("both lost - same hand");
-    }
+        if (playerHand.isBust()) return "DEALER WIN — you bust (" + pv + ")";
 
-    private void printOptions() {
-        System.out.println("1: hit");
-        System.out.println("2: stand");
+        if (dealerHand.isBust()) return "YOU WIN — dealer bust (" + dv + ")";
+
+        if (pv > dv) return "YOU WIN (" + pv + " vs " + dv + ")";
+        if (pv < dv) return "DEALER WIN (" + dv + " vs " + pv + ")";
+        return "PUSH (" + pv + ")";
     }
 }
