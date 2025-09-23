@@ -13,10 +13,6 @@ public class Hand {
         return List.copyOf(cards);
     }
 
-    public void clear() {
-        cards.clear();
-    }
-
     public int value() {
         int sum = 0, aces = 0;
         for (Card c : cards) {

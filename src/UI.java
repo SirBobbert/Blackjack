@@ -1,7 +1,8 @@
 public class UI {
+
     // Layout
-    private static final int WIDTH = 52;        // indre bredde for bokse
-    private static final String IND = "  ";     // venstre indryk
+    private static final int WIDTH = 52;
+    private static final String IND = "  ";
     private static final int PAD = 1;
 
     private final boolean colorEnabled;
@@ -9,12 +10,12 @@ public class UI {
     public UI() { this(true); }
     public UI(boolean colorEnabled) { this.colorEnabled = colorEnabled; }
 
-    // ===== Sektioner / bokse =====
+    // ===== Sections / boxes =====
     public void headline(String title) { banner(title.toUpperCase(), '─'); }
     public void section(String title)  { banner(title.toUpperCase(), '═'); }
     private void banner(String title, char ch) {
         System.out.println();
-        int inner = Math.max(title.length() + PAD * 2, WIDTH);
+        int inner = Math.max(title.length() + PAD * 2, WIDTH+2);
         String line = String.valueOf(ch).repeat(inner);
         int pad = inner - title.length(), left = pad / 2, right = pad - left;
         System.out.println(IND + line);
@@ -41,7 +42,7 @@ public class UI {
         System.out.println("\n" + IND + "→ " + label + " " + what);
     }
 
-    // ===== Hånd-visning i "kort" =====
+    // ===== Show hand =====
     public void showHand(String who, Hand hand, boolean hideHole) {
         String title = who.toUpperCase();
         if (colorEnabled) title = ansi(actorCode(who), title);
@@ -64,7 +65,7 @@ public class UI {
         System.out.println(IND + "└" + "─".repeat(WIDTH + 1));
     }
 
-    // ===== Kompakt scorebar =====
+    // ===== Compact scoreboard =====
     public void scores(Hand player, Hand dealer, boolean dealerHidden) {
         String p = "PLAYER", d = "DEALER";
         if (colorEnabled) { p = ansi(actorCode(p), p); d = ansi(actorCode(d), d); }
@@ -81,7 +82,7 @@ public class UI {
         System.out.println();
     }
 
-    // ===== Pæn menu (boks + hotkeys) =====
+    // ===== Prettifier =====
     public void menu(String title, String... options) {
         String t = title.toUpperCase();
         String line = "─".repeat(WIDTH);
@@ -97,7 +98,7 @@ public class UI {
         System.out.print(IND + "> ");
     }
 
-    // ===== Resultat som hånd-boks =====
+    // ===== Result =====
     public void outcome(String message) {
         String title = "RESULT";
         String line = "─".repeat(WIDTH);
@@ -116,7 +117,7 @@ public class UI {
         System.out.println();
     }
 
-    // Hjælpere
+    // Helpers
     public void divider() { System.out.println(IND + "-".repeat(WIDTH)); }
     public void spacer()  { System.out.println(); }
 
@@ -138,9 +139,9 @@ public class UI {
     private static String ansi(String code, String s) { return "\u001B[" + code + "m" + s + "\u001B[0m"; }
     private static String actorCode(String who) {
         return switch (who.toUpperCase()) {
-            case "PLAYER" -> "32"; // grøn
-            case "DEALER" -> "31"; // rød
-            default -> "37";       // hvid
+            case "PLAYER" -> "32"; // greed
+            case "DEALER" -> "31"; // red
+            default -> "37";       // white
         };
     }
 }

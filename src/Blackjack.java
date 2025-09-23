@@ -11,6 +11,9 @@ public class Blackjack {
     private Deck deck;
 
     public void play() {
+
+        ui.headline("BLACKJACK");
+
         this.deck = new Deck();
         dealersInitialAction();
 

@@ -13,16 +13,8 @@ public final class Card {
         return rank;
     }
 
-    public SUIT getSuit() {
-        return suit;
-    }
-
     public int getValue() {
         return rank.baseValue;
-    }
-
-    public boolean isAce() {
-        return rank.isAce();
     }
 
     @Override
