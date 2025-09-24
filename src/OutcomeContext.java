@@ -1,41 +1,24 @@
 public class OutcomeContext implements OutcomeStrategy {
 
     @Override
-    public Outcome resolve(Hand playerHand, Hand dealerHand) {
+    public Outcome resolve(Hand hand, Hand dealerHand) {
+        int pv = hand.value();
+        int dv = dealerHand.value();
 
-        if (playerHand.isBlackjack() && dealerHand.isBlackjack()) {
-            return new Outcome(OUTCOME_TYPE.DEALER_BJ, playerHand.value(), dealerHand.value());
-        }
+        // Busts first
+        if (hand.isBust()) return new Outcome(OUTCOME_TYPE.PLAYER_BUST, pv, dv);
+        if (dealerHand.isBust()) return new Outcome(OUTCOME_TYPE.DEALER_BUST, pv, dv);
 
-        if (playerHand.isBlackjack()) {
-            return new Outcome(OUTCOME_TYPE.PLAYER_BJ, playerHand.value(), dealerHand.value());
-        }
+        // Naturals
+        boolean pBJ = hand.isBlackjack();
+        boolean dBJ = dealerHand.isBlackjack();
+        if (pBJ && dBJ) return new Outcome(OUTCOME_TYPE.PUSH_BJ, pv, dv);
+        if (pBJ) return new Outcome(OUTCOME_TYPE.PLAYER_BJ, pv, dv);
+        if (dBJ) return new Outcome(OUTCOME_TYPE.DEALER_BJ, pv, dv);
 
-        if (dealerHand.isBlackjack()) {
-            return new Outcome(OUTCOME_TYPE.DEALER_BJ, playerHand.value(), dealerHand.value());
-        }
-
-        if (playerHand.isBust()) {
-            return new Outcome(OUTCOME_TYPE.PLAYER_BUST, playerHand.value(), dealerHand.value());
-        }
-
-        if (dealerHand.isBust()) {
-            return new Outcome(OUTCOME_TYPE.DEALER_BUST, playerHand.value(), dealerHand.value());
-        }
-
-        if (playerHand.value() > dealerHand.value()) {
-            return new Outcome(OUTCOME_TYPE.PLAYER_WIN, playerHand.value(), dealerHand.value());
-        }
-
-        if (playerHand.value() < dealerHand.value()) {
-            return new Outcome(OUTCOME_TYPE.DEALER_WIN, playerHand.value(), dealerHand.value());
-        }
-
-        if (playerHand.value() == 21 && playerHand.cards().size() == 2) {
-            return new Outcome(OUTCOME_TYPE.PUSH_BJ, playerHand.value(), dealerHand.value());
-        }
-
-        return new Outcome(OUTCOME_TYPE.PUSH, playerHand.value(), dealerHand.value());
+        // Compare totals
+        if (pv > dv) return new Outcome(OUTCOME_TYPE.PLAYER_WIN, pv, dv);
+        if (pv < dv) return new Outcome(OUTCOME_TYPE.DEALER_WIN, pv, dv);
+        return new Outcome(OUTCOME_TYPE.PUSH, pv, dv);
     }
 }
-

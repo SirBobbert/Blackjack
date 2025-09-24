@@ -5,7 +5,6 @@ public class Main {
         // TODO: How does A get calculated?
         // TODO: File structure
         // TODO: Test for results
-        // TODO: Multiple players
         // TODO: Insurance
         // TODO: Betting
         // TODO: Multiple decks?
@@ -13,10 +12,11 @@ public class Main {
             // TODO: what feedback do I want
         // TODO: tests?
         // TODO: Auto STAND when player get nat bj
-
+        // TODO: Code comments
 
         // DONE
         // Split
+        // Multiple players
 
 
         Blackjack blackjack = new Blackjack();

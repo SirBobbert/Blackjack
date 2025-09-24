@@ -8,12 +8,8 @@ public class Blackjack {
     private final UI ui = new UI();
     private final OutcomeStrategy outcomeStrategy = new OutcomeContext();
 
-    private final Map<Integer, Hand> playerHand = new LinkedHashMap<>();
+    private final Map<Integer, Player> players = new LinkedHashMap<>();
     private final Hand dealerHand = new Hand();
-
-    // TODO: Iterate this with more players
-    private int playerId = 0;
-    private int currentHandId = 1;
 
     private boolean dealerHoleHidden = true;
 
@@ -23,149 +19,148 @@ public class Blackjack {
 
     public void play() {
         ui.headline("WELCOME TO BLACKJACK");
-
         System.out.println("How many players are playing? (1-4)");
 
         this.playerCount = scanner.nextInt();
+        // consume newline left-over
+        scanner.nextLine();
 
-        // TODO: Split
-//        playerSplit();
-
+        seedPlayers();
         InitializeGame();
         playerTurn();
         dealerTurn();
         finishRound();
     }
 
+    private void seedPlayers() {
+        players.clear();
+        for (int i = 0; i < playerCount; i++) {
+            players.put(i, new Player(i));
+        }
+    }
+
 
     public void InitializeGame() {
-
         this.deck = new Deck();
+        dealerHoleHidden = true;
+        dealerHand.clear();
 
         for (int i = 0; i < playerCount; i++) {
             System.out.println("Player " + (i + 1) + " is joining the game.");
-        }
-
-        for (int i = 0; i < playerCount; i++) {
-            playerHand.put(i, new Hand());
+            Player p = players.get(i);
+            p.newRound();
+            p.createHand();
         }
 
         ui.headline("DEALING CARDS");
 
-
         for (int j = 0; j < 2; j++) {
             for (int i = 0; i < playerCount; i++) {
-                Card card = this.deck.draw();
-                Hand hand = playerHand.get(i);
+                Player p = players.get(i);
+                Hand hand = p.getHands().getFirst();
+                Card card = deck.draw();
                 hand.add(card);
                 ui.action("PLAYER " + (i + 1), "draw – " + card);
             }
-            dealerDrawCard(); // first call prints [HIDDEN], second shows actual card
+            dealerDrawCard();
         }
-        showDealerHand(); // shows up-card with correct hide state
-        scanner.nextLine(); // consume newline left-over
+        showDealerHand();
     }
 
 
     private void playerTurn() {
+        int seat = 0;
 
-//        playerSplit();
+        for (Player p : players.values()) {
 
-        for (int id = 0; id < playerHand.size(); id++) {
-            currentHandId = id;
-            ui.headline("PLAYER " + (id + 1));
+            // For testing purposes, force the first hand to be a pair of twos
+            Hand h = p.getHands().getFirst();
+            h.clear();
+            h.add(new Card(RANK.TWO, SUIT.HEARTS));
+            h.add(new Card(RANK.TWO, SUIT.CLUBS));
 
-            Hand hand = playerHand.get(currentHandId);
+            ui.headline("PLAYER " + (++seat));
 
-            System.out.println("hejsa");
-            System.out.println("hejsa");
-            System.out.println(hand.toString());
+            if (p.getHands().getFirst().canSplit()) {
+                ui.info("You can split!");
+                showPlayerHand(p, 0, true);
 
-            System.out.println(playerHand.get(1).toString());
+                ui.menu("SPLIT?", "yes", "no");
 
-            System.out.println("hejsa");
-            System.out.println("hejsa");
-
-            while (true) {
-                int choice = promptAction(currentHandId);
-                if (choice == 1) {
-                    hitCurrent();
-
-                    if (hand.isBust()) {
-                        showPlayerHand();
-                        ui.warn("Hand " + (currentHandId + 1) + " busts.");
+                // ✅ loop until user enters only 1 or 2 (y/n also allowed)
+                int splitChoice;
+                while (true) {
+                    String s = scanner.nextLine().trim().toLowerCase();
+                    if (s.equals("1") || s.equals("y") || s.equals("yes")) {
+                        splitChoice = 1;
                         break;
                     }
-
-                    if (hand.value() == 21) {
-                        showPlayerHand();
-                        ui.success("Hand " + (currentHandId + 1) + " has 21.");
+                    if (s.equals("2") || s.equals("n") || s.equals("no")) {
+                        splitChoice = 2;
                         break;
                     }
-                } else {
-                    stand();
-                    break;
+                    ui.warn("Please type 1 or 2 (or y/n).");
+                    System.out.print("  > ");
+                }
+
+                if (splitChoice == 1) {
+                    p.split(p.getHands());
+                    ui.info("Player has split their hand into two hands: " + p.getHands().get(0) + " and " + p.getHands().get(1));
+                }
+            }
+
+            for (int handIndex = 0; handIndex < p.getHands().size(); handIndex++) {
+                while (true) {
+                    int choice = promptAction(p, handIndex);
+
+                    if (choice == 1) {
+                        hitCurrent(p, handIndex);
+                        Hand hand = p.getHands().get(handIndex);
+
+                        if (hand.isBust()) {
+                            showPlayerHand(p, handIndex, true);
+                            ui.warn("Hand " + (handIndex + 1) + " busts.");
+                            break;
+                        }
+                        if (hand.value() == 21) {
+                            showPlayerHand(p, handIndex, true);
+                            ui.success("Hand " + (handIndex + 1) + " has 21.");
+                            break;
+                        }
+                    } else {
+                        ui.action("Player", "stands");
+                        break;
+                    }
                 }
             }
         }
     }
 
-    private void hitCurrent() {
+
+    private void hitCurrent(Player p, int handIndex) {
+        Hand hand = p.getHands().get(handIndex);
+
         Card card = deck.draw();
-        Hand hand = playerHand.get(currentHandId);
         hand.add(card);
-        ui.action("Player (Hand " + (currentHandId + 1) + ")", "draw – " + card);
-    }
 
-    private void stand() {
-        ui.action("Player", "stands");
-    }
+        boolean multi = p.getHands().size() > 1;
+        String who = multi ? "PLAYER (HAND " + (handIndex + 1) + ")" : "PLAYER";
 
-    private void playerSplit() {
-
-        playerHand.get(0).cards().get(0).setRank(RANK.TWO);
-        playerHand.get(0).cards().get(1).setRank(RANK.TWO);
-
-        Hand hand = playerHand.get(playerId);
-
-
-        ui.action("player", "checking for split option");
-
-        if (hand.canSplit()) {
-            String s;
-
-            ui.menu("SPLIT?", "yes", "no");
-            s = scanner.nextLine().trim().toLowerCase();
-            if (s.equals("1") || s.equals("y") || s.equals("yes")) s = "yes";
-            if (s.equals("2") || s.equals("n") || s.equals("no")) s = "no";
-
-            if (s.equals("yes")) {
-                hand = playerHand.get(playerId);
-                Hand newHand = new Hand();
-
-                hand.transferTo(1, newHand);
-
-                int newId = playerId + 1;
-                playerHand.put(newId, newHand);
-
-                // Deal one replacement card to each split hand
-                hand.add(deck.draw());
-                newHand.add(deck.draw());
-
-            }
-
-
-        } else {
-            System.out.println("No splitting required");
-        }
-        ui.info("Split complete. You will play HAND 1 first, then HAND 2.");
-        showPlayerHand();
+        ui.action(who, "draw – " + card);
     }
 
 
-    private void showPlayerHand() {
-        Hand hand = playerHand.get(currentHandId);
-        ui.showHand("PLAYER HAND " + (currentHandId + 1), hand, false);
+    private void showPlayerHand(Player p, int handIndex, boolean isActive) {
+        Hand hand = p.getHands().get(handIndex);
+        boolean multi = p.getHands().size() > 1;
+
+        // title: no "HAND 1" until there are multiple hands
+        String who = multi
+                ? ("PLAYER " + (p.getId() + 1) + " - HAND " + (handIndex + 1))
+                : ("PLAYER " + (p.getId() + 1));
+
+        boolean showCurrent = isActive && multi; // no "CURRENT" when only one hand
+        ui.showHand(who, hand, /*hideHole*/ false, showCurrent, hand.isBust());
     }
 
 
@@ -187,7 +182,7 @@ public class Blackjack {
             Card hole = dealerHand.cards().getFirst();
             ui.action("Dealer", "reveals hole card – " + hole);
             dealerHoleHidden = false;
-            showDealerHand(); // re-render with the hole visible
+            showDealerHand();
         }
     }
 
@@ -197,29 +192,40 @@ public class Blackjack {
 
 
     private void dealerTurn() {
-        revealDealerHole();          // flip the state + print the reveal
+        revealDealerHole();
         while (dealerHand.value() < 17) {
-            dealerDrawCard();        // all subsequent cards are shown
+            dealerDrawCard();
             showDealerHand();
         }
     }
 
-    private int promptAction(int handIndex) {
+    private int promptAction(Player p, int handIndex) {
         while (true) {
-            showPlayerHand();                     // ✅ single source of truth
-            ui.menu("YOUR TURN — HAND " + (handIndex + 1), "hit", "stand");
+            for (int i = 0; i < p.getHands().size(); i++) {
+                showPlayerHand(p, i, i == handIndex);
+            }
+
+            boolean multi = p.getHands().size() > 1;
+            String title = multi ? ("YOUR TURN — HAND " + (handIndex + 1)) : "YOUR TURN";
+            ui.menu(title, "hit", "stand");
+
             String s = scanner.nextLine().trim().toLowerCase();
             if (s.equals("1") || s.equals("h") || s.equals("hit")) return 1;
             if (s.equals("2") || s.equals("s") || s.equals("stand")) return 2;
-            ui.warn("Invalid input - try again");
+            ui.warn("Please type 1 or 2 (or h/s).");
         }
     }
 
+
     private void finishRound() {
-        int idx = 0;
-        for (Hand h : playerHand.values()) {
-            Outcome o = outcomeStrategy.resolve(h, dealerHand);
-            ui.outcome("Hand " + (++idx) + ": " + o);
+        int seat = 0;
+        for (Player p : players.values()) {
+            int handNo = 0;
+            for (Hand h : p.getHands()) {
+                Outcome o = outcomeStrategy.resolve(h, dealerHand);
+                ui.outcome("Player " + (seat + 1) + " — Hand " + (++handNo) + ": " + o);
+            }
+            seat++;
         }
     }
 

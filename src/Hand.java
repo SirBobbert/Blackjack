@@ -26,6 +26,10 @@ public class Hand {
         other.add(c);
     }
 
+    public void clear() {
+        cards.clear();
+    }
+
     public int value() {
 
         // TODO: Should the player(s) be able to choose Ace value?
@@ -45,6 +49,10 @@ public class Hand {
 
     public boolean isBlackjack() {
         return cards.size() == 2 && value() == 21;
+    }
+
+    public boolean isPairOfAces() {
+        return cards.size() == 2 && cards.get(0).getRank().isAce() && cards.get(1).getRank().isAce();
     }
 
     @Override
