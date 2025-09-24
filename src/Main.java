@@ -13,6 +13,7 @@ public class Main {
         // TODO: Color code suits (red/black)
         // TODO: Outcome "prettier" output
         // TODO: Code comments
+        // TODO: Player names
 
         // DONE
         // Split
