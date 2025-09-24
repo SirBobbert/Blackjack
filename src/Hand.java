@@ -32,7 +32,6 @@ public class Hand {
 
     public int value() {
 
-        // TODO: Should the player(s) be able to choose Ace value?
 
         int sum = 0, aces = 0;
         for (Card c : cards) {

@@ -18,12 +18,6 @@ public final class Card {
         return rank.baseValue;
     }
 
-    // FOR TESTING OF SPLITTING
-    public RANK setRank(RANK rank) {
-        return this.rank = rank;
-    }
-
-
     @Override
     public String toString() {
         return suit.getSymbol() + rank;

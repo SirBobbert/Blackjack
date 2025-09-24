@@ -222,5 +222,4 @@ public class UI {
         };
     }
 
-    // TODO: Color code cards based on suit (red/black)
 }
