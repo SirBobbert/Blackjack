@@ -12,50 +12,79 @@ public class Blackjack {
     private final Hand dealerHand = new Hand();
 
     // TODO: Iterate this with more players
-    private final int playerId = 0;
-    private int currentHandId = 0;
+    private int playerId = 0;
+    private int currentHandId = 1;
+
+    private boolean dealerHoleHidden = true;
+
+    private int playerCount = 1;
 
     private Deck deck;
 
     public void play() {
-        ui.headline("BLACKJACK");
-        Hand p1 = new Hand();
-        playerHand.put(playerId, p1);
+        ui.headline("WELCOME TO BLACKJACK");
 
-        this.deck = new Deck();
-        dealersInitialAction();
+        System.out.println("How many players are playing? (1-4)");
 
-        if (p1.isBlackjack() || dealerHand.isBlackjack()) {
-            finishRound();
-            return;
-        }
+        this.playerCount = scanner.nextInt();
 
-        // Players turn
-        playPlayerHands();
+        // TODO: Split
+//        playerSplit();
 
-        // 👇 Only let dealer act if at least one hand is still alive
-        if (anyHandNotBusted()) {
-            playDealerTurn();
-        }
-
+        InitializeGame();
+        playerTurn();
+        dealerTurn();
         finishRound();
     }
 
-    private boolean anyHandNotBusted() {
-        for (Hand h : playerHand.values()) {
-            if (!h.isBust()) return true;
+
+    public void InitializeGame() {
+
+        this.deck = new Deck();
+
+        for (int i = 0; i < playerCount; i++) {
+            System.out.println("Player " + (i + 1) + " is joining the game.");
         }
-        return false;
+
+        for (int i = 0; i < playerCount; i++) {
+            playerHand.put(i, new Hand());
+        }
+
+        ui.headline("DEALING CARDS");
+
+
+        for (int j = 0; j < 2; j++) {
+            for (int i = 0; i < playerCount; i++) {
+                Card card = this.deck.draw();
+                Hand hand = playerHand.get(i);
+                hand.add(card);
+                ui.action("PLAYER " + (i + 1), "draw – " + card);
+            }
+            dealerDrawCard(); // first call prints [HIDDEN], second shows actual card
+        }
+        showDealerHand(); // shows up-card with correct hide state
+        scanner.nextLine(); // consume newline left-over
     }
 
 
-    private void playPlayerHands() {
+    private void playerTurn() {
+
+//        playerSplit();
+
         for (int id = 0; id < playerHand.size(); id++) {
             currentHandId = id;
-
-            ui.headline("PLAYING HAND " + (currentHandId + 1));
+            ui.headline("PLAYER " + (id + 1));
 
             Hand hand = playerHand.get(currentHandId);
+
+            System.out.println("hejsa");
+            System.out.println("hejsa");
+            System.out.println(hand.toString());
+
+            System.out.println(playerHand.get(1).toString());
+
+            System.out.println("hejsa");
+            System.out.println("hejsa");
 
             while (true) {
                 int choice = promptAction(currentHandId);
@@ -81,7 +110,6 @@ public class Blackjack {
         }
     }
 
-
     private void hitCurrent() {
         Card card = deck.draw();
         Hand hand = playerHand.get(currentHandId);
@@ -91,19 +119,6 @@ public class Blackjack {
 
     private void stand() {
         ui.action("Player", "stands");
-    }
-
-    public void dealersInitialAction() {
-
-        playerDrawCard();
-        dealerDrawCard(false);
-        playerDrawCard();
-
-        playerSplit();
-
-
-        dealerDrawCard(true);
-        showDealerHand(true);
     }
 
     private void playerSplit() {
@@ -147,52 +162,45 @@ public class Blackjack {
         showPlayerHand();
     }
 
-    public void playerDrawCard() {
-        Card card = deck.draw();
-
-        Hand hand = playerHand.get(playerId);
-        hand.add(card);
-
-        ui.action("Player", "draw – " + card);
-        showPlayerHand();
-
-    }
 
     private void showPlayerHand() {
-        if (playerHand.size() > 1) {
-            for (int id = 0; id < playerHand.size(); id++) {
-                String label = "PLAYER HAND " + (id + 1) + (id == currentHandId ? "  ⟵ CURRENT" : "");
-                ui.showHand(label, playerHand.get(id), false);
-            }
+        Hand hand = playerHand.get(currentHandId);
+        ui.showHand("PLAYER HAND " + (currentHandId + 1), hand, false);
+    }
+
+
+    public void dealerDrawCard() {
+        Card card = deck.draw();
+        dealerHand.add(card);
+
+        // If this is the (new) first card and the hole is still hidden, show [HIDDEN]
+        boolean isFirstCard = dealerHand.cards().size() == 1;
+        if (isFirstCard && dealerHoleHidden) {
+            ui.action("Dealer", "draw – [HIDDEN]");
         } else {
-            ui.showHand("PLAYER", playerHand.get(playerId), false);
+            ui.action("Dealer", "draw – " + card);
         }
     }
 
-
-    public void dealerDrawCard(boolean reveal) {
-        Card card = deck.draw();
-        dealerHand.add(card);
-        ui.action("Dealer", reveal ? ("draw – " + card) : "draw – [HIDDEN]");
+    public void revealDealerHole() {
+        if (dealerHoleHidden && !dealerHand.cards().isEmpty()) {
+            Card hole = dealerHand.cards().getFirst();
+            ui.action("Dealer", "reveals hole card – " + hole);
+            dealerHoleHidden = false;
+            showDealerHand(); // re-render with the hole visible
+        }
     }
 
-    public void dealerDrawCard() {
-        dealerDrawCard(true);
+    private void showDealerHand() {
+        ui.showHand("Dealer", dealerHand, dealerHoleHidden);
     }
 
-    private void showDealerHand(boolean hideHole) {
-        ui.showHand("Dealer", dealerHand, hideHole);
-    }
 
-    private void playDealerTurn() {
-        Card hole = dealerHand.cards().getFirst();
-        ui.action("Dealer", "reveals hole card – " + hole);
-
-        showDealerHand(false);
-
+    private void dealerTurn() {
+        revealDealerHole();          // flip the state + print the reveal
         while (dealerHand.value() < 17) {
-            dealerDrawCard();
-            showDealerHand(false);
+            dealerDrawCard();        // all subsequent cards are shown
+            showDealerHand();
         }
     }
 
@@ -206,7 +214,6 @@ public class Blackjack {
             ui.warn("Invalid input - try again");
         }
     }
-
 
     private void finishRound() {
         int idx = 0;

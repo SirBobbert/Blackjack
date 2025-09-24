@@ -12,6 +12,7 @@ public class Main {
         // TODO: Readme
             // TODO: what feedback do I want
         // TODO: tests?
+        // TODO: Auto STAND when player get nat bj
 
 
         // DONE
