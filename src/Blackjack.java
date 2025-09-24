@@ -4,6 +4,7 @@ public class Blackjack {
 
     private final Scanner scanner = new Scanner(System.in);
     private final UI ui = new UI();
+    private final OutcomeStrategy outcomeStrategy = new OutcomeContext();
 
     private final Hand playerHand = new Hand();
     private final Hand dealerHand = new Hand();
@@ -117,25 +118,8 @@ public class Blackjack {
         }
     }
 
-
     private void finishRound() {
-        ui.outcome(outcomeMessage());
-    }
-
-    private String outcomeMessage() {
-        int pv = playerHand.value();
-        int dv = dealerHand.value();
-
-        if (playerHand.isBlackjack() && dealerHand.isBlackjack()) return "PUSH — both got blackjack (" + pv + ")";
-        if (playerHand.isBlackjack()) return "YOU WIN — blackjack (" + pv + ")";
-        if (dealerHand.isBlackjack()) return "DEALER WIN — blackjack (" + dv + ")";
-
-        if (playerHand.isBust()) return "DEALER WIN — you bust (" + pv + ")";
-
-        if (dealerHand.isBust()) return "YOU WIN — dealer bust (" + dv + ")";
-
-        if (pv > dv) return "YOU WIN (" + pv + " vs " + dv + ")";
-        if (pv < dv) return "DEALER WIN (" + dv + " vs " + pv + ")";
-        return "PUSH (" + pv + ")";
+        Outcome o = outcomeStrategy.resolve(playerHand, dealerHand);
+        ui.outcome(String.valueOf(o));
     }
 }
