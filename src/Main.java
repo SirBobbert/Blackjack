@@ -2,6 +2,7 @@
 public class Main {
     public static void main(String[] args) {
 
+        // TODO: How does A get calculated?
         // TODO: File structure
         // TODO: Test for results
         // TODO: Multiple players
@@ -10,6 +11,7 @@ public class Main {
         // TODO: Multiple decks?
         // TODO: Readme
             // TODO: what feedback do I want
+        // TODO: tests?
 
 
         // DONE
