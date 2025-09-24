@@ -3,13 +3,6 @@ public class OutcomeContext implements OutcomeStrategy {
     @Override
     public Outcome resolve(Hand playerHand, Hand dealerHand) {
 
-
-
-
-        return switch (true){
-            case 1 ->
-        }
-
         if (playerHand.isBlackjack() && dealerHand.isBlackjack()) {
             return new Outcome(OUTCOME_TYPE.DEALER_BJ, playerHand.value(), dealerHand.value());
         }
