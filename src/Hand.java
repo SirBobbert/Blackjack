@@ -21,10 +21,9 @@ public class Hand {
         return cards.size() == 2 && cards.get(0).getValue() == cards.get(1).getValue();
     }
 
-    public Card transferTo(int index, Hand other) {
+    public void transferTo(int index, Hand other) {
         Card c = removeAt(index);
         other.add(c);
-        return c;
     }
 
     public int value() {

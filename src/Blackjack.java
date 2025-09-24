@@ -116,7 +116,7 @@ public class Blackjack {
 
         ui.action("player", "checking for split option");
 
-        if (hand.cards().get(0).getValue() == hand.cards().get(1).getValue()) {
+        if (hand.canSplit()) {
             String s;
 
             ui.menu("SPLIT?", "yes", "no");
