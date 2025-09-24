@@ -5,9 +5,15 @@ public class Main {
         // TODO: File structure
         // TODO: Test for results
         // TODO: Multiple players
-        // TODO: Split
-
+        // TODO: Insurance
+        // TODO: Betting
         // TODO: Multiple decks?
+        // TODO: Readme
+            // TODO: what feedback do I want
+
+
+        // DONE
+        // Split
 
 
         Blackjack blackjack = new Blackjack();

@@ -1,3 +1,5 @@
+import java.util.Map;
+
 public class UI {
 
     // Layout
@@ -65,13 +67,23 @@ public class UI {
         System.out.println("\n" + IND + "→ " + label + " " + what);
     }
 
-    // ===== Show hand =====
+    // keep your existing signature but delegate:
     public void showHand(String who, Hand hand, boolean hideHole) {
-        String title = who.toUpperCase();
-        if (colorEnabled) title = ansi(actorCode(who), title);
+        showHand(who, hand, hideHole, /*isCurrent*/ false, /*isBusted*/ hand.value() > 21);
+    }
 
+    // enhanced overload
+    public void showHand(String who, Hand hand, boolean hideHole, boolean isCurrent, boolean isBusted) {
+        String baseTitle = who.toUpperCase()
+                + (isCurrent ? "  ⟵ CURRENT" : (isBusted ? "  (BUST)" : ""));
+        String titleColor = actorCode(who);
+        if (isBusted && !isCurrent) titleColor = "90"; // dim busted (if not current)
+        String title = colorEnabled ? ansi(titleColor, baseTitle) : baseTitle;
+
+        // Cards & total
         String cards;
         int total;
+        boolean natural21 = false;
         if (hideHole && hand.cards().size() >= 2) {
             var up = hand.cards().get(1);
             cards = "[HIDDEN], " + up;
@@ -79,15 +91,38 @@ public class UI {
         } else {
             cards = hand.toString();
             total = hand.value();
+            natural21 = (total == 21 && hand.cards().size() == 2);
         }
 
-        String content = alignTwoCols(cards, "TOTAL: " + total, WIDTH);
+        // Right-side label with colors
+        String right;
+        if (!hideHole) {
+            if (total > 21) {
+                right = colorEnabled ? ansi("31", "BUST!") : "BUST!";
+            } else if (natural21) {
+                right = colorEnabled ? ansi("32", "BLACKJACK!") : "BLACKJACK!";
+            } else if (total == 21) {
+                right = colorEnabled ? ansi("32", "TOTAL: 21") : "TOTAL: 21";
+            } else {
+                right = "TOTAL: " + total;
+            }
+        } else {
+            right = "TOTAL: " + total;
+        }
+
+        String content = alignTwoCols(cards, right, WIDTH);
+        if (isBusted && !isCurrent && colorEnabled) {
+            content = ansi("90", content); // dim whole line for busted non-current
+        }
+
         String line = "─".repeat(WIDTH);
         System.out.println();
-        System.out.println(IND + "┌ " + title + " " + line.substring(title.length() + 1));
+        System.out.println(IND + "┌ " + title + " " + line.substring(stripAnsi(baseTitle).length() + 1));
         System.out.println(IND + "│ " + content);
         System.out.println(IND + "└" + "─".repeat(WIDTH + 1));
     }
+
+
 
     // ===== Compact scoreboard =====
     public void scores(Hand player, Hand dealer, boolean dealerHidden) {

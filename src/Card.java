@@ -1,6 +1,7 @@
 public final class Card {
 
-    private final RANK rank;
+    // NOT FINAL FOR TESTING
+    private RANK rank;
     private final SUIT suit;
 
     public Card(RANK rank, SUIT suit) {
@@ -16,6 +17,12 @@ public final class Card {
     public int getValue() {
         return rank.baseValue;
     }
+
+    // FOR TESTING OF SPLITTING
+    public RANK setRank(RANK rank) {
+        return this.rank = rank;
+    }
+
 
     @Override
     public String toString() {

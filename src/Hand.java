@@ -9,8 +9,22 @@ public class Hand {
         cards.add(c);
     }
 
+    public Card removeAt(int index) {
+        return cards.remove(index);
+    }
+
     public List<Card> cards() {
         return List.copyOf(cards);
+    }
+
+    public boolean canSplit() {
+        return cards.size() == 2 && cards.get(0).getValue() == cards.get(1).getValue();
+    }
+
+    public Card transferTo(int index, Hand other) {
+        Card c = removeAt(index);
+        other.add(c);
+        return c;
     }
 
     public int value() {
