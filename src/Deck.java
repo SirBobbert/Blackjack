@@ -5,7 +5,6 @@ public class Deck {
 
     private final Deque<Card> cards = new ArrayDeque<>(52);
 
-
     public Deck() {
         for (SUIT s : SUIT.values())
             for (RANK r : RANK.values())
@@ -23,13 +22,5 @@ public class Deck {
     public Card draw() {
         if (cards.isEmpty()) throw new IllegalStateException("Deck is empty");
         return cards.removeFirst();
-    }
-
-    public int remaining() {
-        return cards.size();
-    }
-
-    public boolean isEmpty() {
-        return cards.isEmpty();
     }
 }

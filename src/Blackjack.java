@@ -4,18 +4,15 @@ import java.util.Scanner;
 
 public class Blackjack {
 
+    private final OutcomeStrategy outcomeStrategy = new OutcomeContext();
     private final Scanner scanner = new Scanner(System.in);
     private final UI ui = new UI();
-    private final OutcomeStrategy outcomeStrategy = new OutcomeContext();
+    private Deck deck;
 
     private final Map<Integer, Player> players = new LinkedHashMap<>();
     private final Hand dealerHand = new Hand();
-
     private boolean dealerHoleHidden = true;
-
     private int playerCount = 1;
-
-    private Deck deck;
 
     public void play() {
         ui.headline("WELCOME TO BLACKJACK");
@@ -39,7 +36,6 @@ public class Blackjack {
         }
     }
 
-
     public void InitializeGame() {
         this.deck = new Deck();
         dealerHoleHidden = true;
@@ -48,8 +44,7 @@ public class Blackjack {
         for (int i = 0; i < playerCount; i++) {
             System.out.println("Player " + (i + 1) + " is joining the game.");
             Player p = players.get(i);
-            p.newRound();
-            p.createHand();
+            p.resetHands();
         }
 
         ui.headline("DEALING CARDS");
@@ -76,8 +71,11 @@ public class Blackjack {
             // For testing purposes
             Hand h = p.getHands().getFirst();
             h.clear();
-            h.add(new Card(RANK.ACE, SUIT.HEARTS));
-            h.add(new Card(RANK.KING, SUIT.CLUBS));
+//            h.add(new Card(RANK.ACE, SUIT.HEARTS));
+//            h.add(new Card(RANK.KING, SUIT.CLUBS));
+
+            h.add(new Card(RANK.TWO, SUIT.HEARTS));
+            h.add(new Card(RANK.TWO, SUIT.CLUBS));
             // For testing purposes
 
             ui.headline("PLAYER " + (++seat));
@@ -104,7 +102,7 @@ public class Blackjack {
                 }
 
                 if (splitChoice == 1) {
-                    p.split(p.getHands());
+                    p.split(0);
                     ui.info("Player has split their hand into two hands: " + p.getHands().get(0) + " and " + p.getHands().get(1));
                 }
             }
@@ -167,11 +165,10 @@ public class Blackjack {
         String who = multi
                 ? ("PLAYER " + (p.getId() + 1) + " - HAND " + (handIndex + 1))
                 : ("PLAYER " + (p.getId() + 1));
-
-        boolean showCurrent = isActive && multi; // no "CURRENT" when only one hand
-        ui.showHand(who, hand, /*hideHole*/ false, showCurrent, hand.isBust());
+        // "CURRENT" when only one hand
+        boolean showCurrent = isActive && multi;
+        ui.showHand(who, hand, false, showCurrent, hand.isBust());
     }
-
 
     public void dealerDrawCard() {
         Card card = deck.draw();
@@ -199,10 +196,9 @@ public class Blackjack {
         ui.showHand("Dealer", dealerHand, dealerHoleHidden);
     }
 
-
     private void dealerTurn() {
 
-        if (players.values().stream().allMatch(Player::isBust)) {
+        if (players.values().stream().allMatch(Player::allHandBusted)) {
             ui.headline("ALL PLAYERS BUSTED");
             ui.info("Dealer does not play since all players have busted.");
         } else {
@@ -232,7 +228,6 @@ public class Blackjack {
         }
     }
 
-
     private void finishRound() {
         int seat = 0;
         ui.headline("ROUND OVER — OUTCOMES");
@@ -245,5 +240,4 @@ public class Blackjack {
             seat++;
         }
     }
-
 }

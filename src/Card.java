@@ -1,7 +1,6 @@
 public final class Card {
 
-    // NOT FINAL FOR TESTING
-    private RANK rank;
+    private final RANK rank;
     private final SUIT suit;
 
     public Card(RANK rank, SUIT suit) {
