@@ -27,6 +27,14 @@ public class Player {
         hands.add(new Hand());
     }
 
+    public boolean hasActiveHand(Player p) {
+
+        for (Hand hand : hands) {
+            if (hand.getBet() > 0 && hand.size() > 0 && !hand.isBust()) return true;
+        }
+        return false;
+    }
+
     public boolean allHandBusted() {
         for (Hand hand : hands) {
             if (!hand.isBust()) return false;

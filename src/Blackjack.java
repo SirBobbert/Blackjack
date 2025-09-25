@@ -12,7 +12,6 @@ public class Blackjack {
     private final Map<Integer, Player> players = new LinkedHashMap<>();
     private final Hand dealerHand = new Hand();
     private boolean dealerHoleHidden = true;
-    private int playerCount;
 
     public void play() {
         ui.headline("WELCOME TO BLACKJACK");
@@ -27,14 +26,29 @@ public class Blackjack {
                 ui.warn("All players are out of chips! Game over.");
                 break;
             }
-            // clears hands, resets dealer, etc.
+            // resets for next round
             prepareNextRound();
-
             initiateBetting();
+
+            // If nobody placed a bet, skip the round entirely
+            boolean anyActive = players.values().stream().anyMatch(this::isActive);
+            if (!anyActive) {
+                ui.warn("No active bets this round. Skipping to next round.");
+                // optionally prompt here, or just continue
+                keepPlaying = promptPlayAgain();
+                continue;
+            }
+
             initializeGame();
             playerTurn();
             dealerTurn();
             finishRound();
+
+            // 🔹 Re-check here, BEFORE prompting
+            if (!anyPlayerHasChips()) {
+                ui.warn("All players are out of chips! Game over.");
+                break;
+            }
 
             keepPlaying = promptPlayAgain();
 
@@ -94,7 +108,7 @@ public class Blackjack {
                 scanner.nextLine();
             }
         }
-        this.playerCount = count;
+        int playerCount = count;
 
         players.clear();
         for (int i = 0; i < playerCount; i++) {
@@ -142,19 +156,18 @@ public class Blackjack {
 
 
     public void initializeGame() {
-        this.deck = new Deck();
         dealerHoleHidden = true;
         dealerHand.clear();
 
         ui.headline("DEALING CARDS");
 
         for (int j = 0; j < 2; j++) {
-            for (int i = 0; i < playerCount; i++) {
-                Player p = players.get(i);
+            for (Player p : players.values()) {
+                if (!isActive(p)) continue;
                 Hand hand = p.getHands().getFirst();
                 Card card = deck.draw();
                 hand.add(card);
-                ui.action("PLAYER " + (i + 1), "draw – " + card);
+                ui.action("PLAYER " + (p.getId() + 1), "draw – " + card);
             }
             dealerDrawCard();
         }
@@ -166,6 +179,8 @@ public class Blackjack {
         int seat = 0;
 
         for (Player p : players.values()) {
+
+            if (!isActive(p)) continue;
 
             // For testing purposes
 //            Hand h = p.getHands().getFirst();
@@ -255,6 +270,14 @@ public class Blackjack {
         ui.action(who, "draw – " + card);
     }
 
+    private boolean isActive(Player p) {
+        return p.getHands().stream().anyMatch(h -> h.getBet() > 0);
+    }
+
+    private boolean hasLiveActiveHand(Player p) {
+        return p.getHands().stream().anyMatch(h -> h.getBet() > 0 && !h.isBust());
+    }
+
 
     private void showPlayerHand(Player p, int handIndex, boolean isActive) {
         Hand hand = p.getHands().get(handIndex);
@@ -297,16 +320,31 @@ public class Blackjack {
 
     private void dealerTurn() {
 
-        if (players.values().stream().allMatch(Player::allHandBusted)) {
-            ui.headline("ALL PLAYERS BUSTED");
-            ui.info("Dealer does not play since all players have busted.");
-        } else {
-            ui.headline("DEALER");
-            revealDealerHole();
-            while (dealerHand.value() < 17) {
-                dealerDrawCard();
-                showDealerHand();
-            }
+        boolean anyActive = players.values().stream().anyMatch(this::isActive);
+
+        if (!anyActive) {
+            ui.headline("NO ACTIVE PLAYERS");
+            ui.info("Dealer does not play since there are no active players.");
+            return;
+        }
+
+
+        boolean allActiveBusted =
+                players.values().stream()
+                        .filter(this::isActive)
+                        .allMatch(this::hasLiveActiveHand);
+
+        if (allActiveBusted) {
+            ui.headline("ALL ACTIVE PLAYERS BUSTED");
+            ui.info("Dealer does not play since all active players have busted.");
+            return;
+        }
+
+        ui.headline("DEALER");
+        revealDealerHole();
+        while (dealerHand.value() < 17) {
+            dealerDrawCard();
+            showDealerHand();
         }
     }
 
@@ -328,35 +366,34 @@ public class Blackjack {
     }
 
     private void finishRound() {
-        int seat = 0;
         ui.headline("ROUND OVER — OUTCOMES");
+
         for (Player p : players.values()) {
 
+            var activeHands = p.getHands().stream().filter(h -> h.getBet() > 0).toList();
+
+            if (activeHands.isEmpty()) continue;
 
             int handNo = 0;
-            for (Hand h : p.getHands()) {
+            for (Hand h : activeHands) {
                 Outcome o = outcomeStrategy.resolve(h, dealerHand);
-                ui.outcome("Player " + (seat + 1) + " — Hand " + (++handNo) + ": " + o);
+                ui.outcome("Player " + (p.getId() + 1) + " — Hand " + (++handNo) + ": " + o);
 
-                System.out.println("RESOLVE BETS FOR PLAYER " + (seat + 1));
-
+                System.out.println("RESOLVE BETS FOR PLAYER " + (p.getId() + 1));
                 System.out.println("Start balance: " + p.getBalance());
-
                 System.out.println("Bet placed: " + h.getBet());
 
                 int gain = updatedBalance(h.getBet(), o);
 
-                System.out.println("Player " + (seat + 1) + " "
+                System.out.println("Player " + (p.getId() + 1) + " "
                         + (gain < 0 ? "lost $" + Math.abs(gain)
                         : gain > 0 ? "gains $" + gain
                         : "broke even")
                         + " for this hand.");
 
                 p.updateBalance(gain);
-
                 System.out.println("New balance: " + p.getBalance());
             }
-            seat++;
         }
     }
 

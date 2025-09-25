@@ -1,15 +1,16 @@
 public class Main {
     public static void main(String[] args) {
 
-        // TODO: Tests (hand value, bust, blackjack, pair of aces, can split)
-        // TODO: file structure - cards/game/rules/ui
-        // TODO: Insurance
         // TODO: README - how to run, rules, features, what feedback I want
+        // TODO: file structure - cards/game/rules/ui
+        // TODO: Split up Blackjack class
+        // TODO: Code comments
+        // TODO: Tests (hand value, bust, blackjack, pair of aces, can split)
+        // TODO: Presentation
+
+        // TODO: Insurance
         // TODO: Color code suits (red/black)
         // TODO: Outcome "prettier" output
-        // TODO: Code comments
-        // TODO: Player names
-        // TODO: Split up Blackjack class
         // TODO: Fix width in UI
 
 
