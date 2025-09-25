@@ -23,4 +23,8 @@ public class Deck {
         if (cards.isEmpty()) throw new IllegalStateException("Deck is empty");
         return cards.removeFirst();
     }
+
+    public int remaining() {
+        return cards.size();
+    }
 }

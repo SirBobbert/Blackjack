@@ -16,14 +16,64 @@ public class Blackjack {
 
     public void play() {
         ui.headline("WELCOME TO BLACKJACK");
-
         seedPlayers();
-        initiateBetting();
-        initializeGame();
-        playerTurn();
-        dealerTurn();
-        finishRound();
+
+        // create a deck once; we’ll reshuffle when low
+        deck = new Deck();
+
+        boolean keepPlaying = true;
+        while (keepPlaying) {
+            if (!anyPlayerHasChips()) {
+                ui.warn("All players are out of chips! Game over.");
+                break;
+            }
+            // clears hands, resets dealer, etc.
+            prepareNextRound();
+
+            initiateBetting();
+            initializeGame();
+            playerTurn();
+            dealerTurn();
+            finishRound();
+
+            keepPlaying = promptPlayAgain();
+
+            if (keepPlaying && deck.remaining() < 20) {
+                ui.info("Reshuffling the deck...");
+                deck = new Deck();
+            }
+        }
+
+        ui.info("Thanks for playing!");
     }
+
+
+    private boolean anyPlayerHasChips() {
+        return players.values().stream().anyMatch(p -> p.getBalance() > 0);
+    }
+
+    private void prepareNextRound() {
+        dealerHoleHidden = true;
+        dealerHand.clear();
+        // reset each player's hands to a single empty hand
+        for (Player p : players.values()) {
+            p.resetHands();
+        }
+        // ensure we have a deck (first round)
+        if (deck == null) deck = new Deck();
+    }
+
+    private boolean promptPlayAgain() {
+        ui.menu("Play another round?", "yes", "no");
+        while (true) {
+            String s = scanner.nextLine().trim().toLowerCase();
+            if (s.equals("1") || s.equals("y") || s.equals("yes")) return true;
+            if (s.equals("2") || s.equals("n") || s.equals("no")) return false;
+            ui.warn("Please type 1 or 2 (or y/n).");
+            System.out.print("> ");
+        }
+    }
+
 
     private void seedPlayers() {
 
@@ -59,6 +109,12 @@ public class Blackjack {
     private void initiateBetting() {
 
         for (Player p : players.values()) {
+
+            if (p.getBalance() <= 0) {
+                ui.warn("Player " + (p.getId() + 1) + " has no chips left and cannot bet.");
+                continue;
+            }
+
             ui.headline("PLAYER " + (p.getId() + 1) + " BETTING");
             int bet;
             while (true) {
@@ -78,10 +134,8 @@ public class Blackjack {
                     ui.warn("Please enter a valid number.");
                 }
             }
-            int i = 0;
-            p.placeBet(bet, p.getHands().get(i));
+            p.placeBet(bet, p.getHands().getFirst());
             ui.success("Player " + (p.getId() + 1) + " bets $" + bet + ".");
-            i++;
         }
 
     }
@@ -114,12 +168,12 @@ public class Blackjack {
         for (Player p : players.values()) {
 
             // For testing purposes
-            Hand h = p.getHands().getFirst();
-            h.clear();
+//            Hand h = p.getHands().getFirst();
+//            h.clear();
 //            h.add(new Card(RANK.ACE, SUIT.HEARTS));
 //            h.add(new Card(RANK.KING, SUIT.CLUBS));
-            h.add(new Card(RANK.KING, SUIT.HEARTS));
-            h.add(new Card(RANK.KING, SUIT.CLUBS));
+//            h.add(new Card(RANK.KING, SUIT.HEARTS));
+//            h.add(new Card(RANK.KING, SUIT.CLUBS));
             // For testing purposes
 
             ui.headline("PLAYER " + (++seat));
