@@ -23,29 +23,56 @@ public class Blackjack {
         scanner.nextLine();
 
         seedPlayers();
-        InitializeGame();
+        initiateBetting();
+        initializeGame();
         playerTurn();
         dealerTurn();
         finishRound();
+    }
+
+    private void initiateBetting() {
+
+        for (Player p : players.values()) {
+            ui.headline("PLAYER " + (p.getId() + 1) + " BETTING");
+            int bet;
+            while (true) {
+                System.out.println("You have $" + p.getBalance() + ". How much do you want to bet?");
+                System.out.print("  > ");
+                String s = scanner.nextLine().trim();
+                try {
+                    bet = Integer.parseInt(s);
+                    if (bet < 1) {
+                        ui.warn("Bet must be at least $1.");
+                    } else if (bet > p.getBalance()) {
+                        ui.warn("You cannot bet more than your current balance.");
+                    } else {
+                        break;
+                    }
+                } catch (NumberFormatException e) {
+                    ui.warn("Please enter a valid number.");
+                }
+            }
+            p.placeBet(bet);
+            ui.success("Player " + (p.getId() + 1) + " bets $" + bet + ".");
+        }
+
     }
 
     private void seedPlayers() {
         players.clear();
         for (int i = 0; i < playerCount; i++) {
             players.put(i, new Player(i));
-        }
-    }
 
-    public void InitializeGame() {
-        this.deck = new Deck();
-        dealerHoleHidden = true;
-        dealerHand.clear();
-
-        for (int i = 0; i < playerCount; i++) {
             System.out.println("Player " + (i + 1) + " is joining the game.");
             Player p = players.get(i);
             p.resetHands();
         }
+    }
+
+    public void initializeGame() {
+        this.deck = new Deck();
+        dealerHoleHidden = true;
+        dealerHand.clear();
 
         ui.headline("DEALING CARDS");
 
@@ -69,13 +96,13 @@ public class Blackjack {
         for (Player p : players.values()) {
 
             // For testing purposes
-            Hand h = p.getHands().getFirst();
-            h.clear();
+//            Hand h = p.getHands().getFirst();
+//            h.clear();
 //            h.add(new Card(RANK.ACE, SUIT.HEARTS));
 //            h.add(new Card(RANK.KING, SUIT.CLUBS));
-
-            h.add(new Card(RANK.TWO, SUIT.HEARTS));
-            h.add(new Card(RANK.TWO, SUIT.CLUBS));
+//
+//            h.add(new Card(RANK.TWO, SUIT.HEARTS));
+//            h.add(new Card(RANK.TWO, SUIT.CLUBS));
             // For testing purposes
 
             ui.headline("PLAYER " + (++seat));
@@ -236,8 +263,57 @@ public class Blackjack {
             for (Hand h : p.getHands()) {
                 Outcome o = outcomeStrategy.resolve(h, dealerHand);
                 ui.outcome("Player " + (seat + 1) + " — Hand " + (++handNo) + ": " + o);
+
+                System.out.println("RESOLVE BETS FOR PLAYER " + (seat + 1));
+
+                System.out.println("Current balance:");
+                System.out.println(p.getBalance());
+
+                System.out.println("current bet");
+                System.out.println(p.getCurrentBet());
+
+                // parse logic
+                p.updateBalance(updatedBalance(p, o));
+
             }
             seat++;
         }
     }
+
+    private int updatedBalance(Player p, Outcome o) {
+        System.out.println(o.toString());
+
+        int bet = p.getCurrentBet();
+        int balance = p.getBalance();
+
+
+        switch (o.type()) {
+            case PUSH_BJ, PUSH -> {
+                System.out.println("PUSH (DRAW)");
+                balance = balance + bet;
+            }
+            case PLAYER_BJ -> {
+                System.out.println("PLAYER BLACKJACK!");
+                balance = (int) (balance + (bet * 2.5));
+            }
+            case PLAYER_WIN, DEALER_BUST -> {
+                System.out.println("PLAYER WINS!");
+                balance = balance + (bet * 2);
+            }
+            case DEALER_BJ, DEALER_WIN, PLAYER_BUST -> {
+                System.out.println("PLAYER LOSES!");
+            }
+        }
+
+        System.out.println("New balance");
+        System.out.println(balance);
+        return balance;
+    }
+
 }
+
+
+
+
+
+

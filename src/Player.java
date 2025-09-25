@@ -5,6 +5,8 @@ public class Player {
 
     private final int id;
     private final List<Hand> hands = new ArrayList<>();
+    private int balance = 1000; // default starting balance
+    private int currentBet = 0;
 
     public Player(int id) {
         this.id = id;
@@ -45,4 +47,33 @@ public class Player {
         hands.add(idx + 1, newHand);
     }
 
+    public int getCurrentBet() {
+        return currentBet;
+    }
+
+    public void setCurrentBet(int currentBet) {
+        this.currentBet = currentBet;
+    }
+
+    public int getBalance() {
+        return balance;
+    }
+
+    public void setBalance(int balance) {
+        this.balance = balance;
+    }
+
+    public int placeBet(int amount) {
+        if (amount > balance) {
+            throw new IllegalArgumentException("Bet amount exceeds current balance.");
+        }
+        balance -= amount;
+        currentBet = amount;
+        return currentBet;
+    }
+
+    public int updateBalance(int amount) {
+        balance += amount;
+        return balance;
+    }
 }
