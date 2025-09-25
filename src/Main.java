@@ -1,7 +1,6 @@
 public class Main {
     public static void main(String[] args) {
 
-        // TODO: README - how to run, rules, features, what feedback I want
         // TODO: file structure - cards/game/rules/ui
         // TODO: Split up Blackjack class
         // TODO: Code comments
@@ -25,6 +24,7 @@ public class Main {
         // Player cap
         // Gameplay loop
         // Multiple decks
+        // README - how to run, rules, features, what feedback I want
 
         Blackjack blackjack = new Blackjack();
         blackjack.play();
