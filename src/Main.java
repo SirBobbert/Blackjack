@@ -13,6 +13,8 @@ public class Main {
         // TODO: Player names
         // TODO: Player cap
         // TODO: Split up Blackjack class
+        // TODO: Fix width in UI
+
 
         // DONE
         // Split
