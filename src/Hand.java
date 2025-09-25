@@ -40,6 +40,7 @@ public class Hand {
         this.bet = bet;
     }
 
+
     public boolean isBlackjack() {
         return cards.size() == 2 && value() == 21;
     }

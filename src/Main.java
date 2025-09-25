@@ -14,12 +14,12 @@ public class Main {
         // TODO: Player cap
         // TODO: Split up Blackjack class
         // TODO: Fix width in UI
-        // TODO: Ace calculation
 
 
         // DONE
         // Split
         // Multiple players
+        // Ace calculation (soft/hard)
         // If active players are bust, skip dealer turn
         // Auto-stand on natural blackjack
         // KISS/DRY refactoring

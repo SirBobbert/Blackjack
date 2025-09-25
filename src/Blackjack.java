@@ -292,26 +292,13 @@ public class Blackjack {
 
     private int updatedBalance(int bet, Outcome o) {
 
-        int gain = 0;
-
-        switch (o.type()) {
-            case PUSH_BJ, PUSH -> {
-                gain = bet;
-            }
-            case PLAYER_BJ -> {
-                gain = (int) (bet * 2.5);
-            }
-            case PLAYER_WIN, DEALER_BUST -> {
-                gain = (bet * 2);
-            }
-            case DEALER_BJ, DEALER_WIN, PLAYER_BUST -> {
-                gain = -bet;
-            }
-        }
-
-        return gain;
+        return switch (o.type()) {
+            case PUSH_BJ, PUSH -> 0;
+            case PLAYER_BJ -> (int) (bet * 2.5);
+            case PLAYER_WIN, DEALER_BUST -> (bet * 2);
+            case DEALER_BJ, DEALER_WIN, PLAYER_BUST -> -bet;
+        };
     }
-
 }
 
 
