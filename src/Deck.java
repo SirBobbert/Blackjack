@@ -6,10 +6,13 @@ public class Deck {
     private final Deque<Card> cards = new ArrayDeque<>(52);
 
     public Deck() {
-        for (SUIT s : SUIT.values())
-            for (RANK r : RANK.values())
-                cards.addLast(new Card(r, s));
-        shuffle();
+        int amountOfDecks = 6;
+        for (int i = 0; i < amountOfDecks; i++) {
+            for (SUIT s : SUIT.values())
+                for (RANK r : RANK.values())
+                    cards.addLast(new Card(r, s));
+            shuffle();
+        }
     }
 
     private void shuffle() {
