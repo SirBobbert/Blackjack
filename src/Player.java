@@ -45,6 +45,15 @@ public class Player {
         Hand newHand = new Hand();
         original.transferTo(1, newHand);
         hands.add(idx + 1, newHand);
+
+        Hand h1 = original;
+        Hand h2 = newHand;
+
+        h1.setBet(currentBet);
+        System.out.println("Hand 1 current bet: " + h1.getBet());
+
+        h2.setBet(currentBet);
+        System.out.println("Hand 2 current bet: " + h2.getBet());
     }
 
     public int getCurrentBet() {
@@ -59,21 +68,23 @@ public class Player {
         return balance;
     }
 
-    public void setBalance(int balance) {
+    public int setBalance(int balance) {
         this.balance = balance;
+        return balance;
     }
 
-    public int placeBet(int amount) {
+    public void updateBalance(int amount) {
+        this.balance += amount;
+    }
+
+    public int placeBet(int amount, Hand hand) {
+
         if (amount > balance) {
             throw new IllegalArgumentException("Bet amount exceeds current balance.");
         }
-        balance -= amount;
+
+        hand.setBet(amount);
         currentBet = amount;
         return currentBet;
-    }
-
-    public int updateBalance(int amount) {
-        balance += amount;
-        return balance;
     }
 }

@@ -52,8 +52,10 @@ public class Blackjack {
                     ui.warn("Please enter a valid number.");
                 }
             }
-            p.placeBet(bet);
+            int i = 0;
+            p.placeBet(bet, p.getHands().get(i));
             ui.success("Player " + (p.getId() + 1) + " bets $" + bet + ".");
+            i++;
         }
 
     }
@@ -96,13 +98,12 @@ public class Blackjack {
         for (Player p : players.values()) {
 
             // For testing purposes
-//            Hand h = p.getHands().getFirst();
-//            h.clear();
+            Hand h = p.getHands().getFirst();
+            h.clear();
 //            h.add(new Card(RANK.ACE, SUIT.HEARTS));
 //            h.add(new Card(RANK.KING, SUIT.CLUBS));
-//
-//            h.add(new Card(RANK.TWO, SUIT.HEARTS));
-//            h.add(new Card(RANK.TWO, SUIT.CLUBS));
+            h.add(new Card(RANK.KING, SUIT.HEARTS));
+            h.add(new Card(RANK.KING, SUIT.CLUBS));
             // For testing purposes
 
             ui.headline("PLAYER " + (++seat));
@@ -131,6 +132,7 @@ public class Blackjack {
                 if (splitChoice == 1) {
                     p.split(0);
                     ui.info("Player has split their hand into two hands: " + p.getHands().get(0) + " and " + p.getHands().get(1));
+
                 }
             }
 
@@ -259,6 +261,8 @@ public class Blackjack {
         int seat = 0;
         ui.headline("ROUND OVER — OUTCOMES");
         for (Player p : players.values()) {
+
+
             int handNo = 0;
             for (Hand h : p.getHands()) {
                 Outcome o = outcomeStrategy.resolve(h, dealerHand);
@@ -266,48 +270,46 @@ public class Blackjack {
 
                 System.out.println("RESOLVE BETS FOR PLAYER " + (seat + 1));
 
-                System.out.println("Current balance:");
-                System.out.println(p.getBalance());
+                System.out.println("Start balance: " + p.getBalance());
 
-                System.out.println("current bet");
-                System.out.println(p.getCurrentBet());
+                System.out.println("Bet placed: " + h.getBet());
 
-                // parse logic
-                p.updateBalance(updatedBalance(p, o));
+                int gain = updatedBalance(h.getBet(), o);
 
+                System.out.println("Player " + (seat + 1) + " "
+                        + (gain < 0 ? "lost $" + Math.abs(gain)
+                        : gain > 0 ? "gains $" + gain
+                        : "broke even")
+                        + " for this hand.");
+
+                p.updateBalance(gain);
+
+                System.out.println("New balance: " + p.getBalance());
             }
             seat++;
         }
     }
 
-    private int updatedBalance(Player p, Outcome o) {
-        System.out.println(o.toString());
+    private int updatedBalance(int bet, Outcome o) {
 
-        int bet = p.getCurrentBet();
-        int balance = p.getBalance();
-
+        int gain = 0;
 
         switch (o.type()) {
             case PUSH_BJ, PUSH -> {
-                System.out.println("PUSH (DRAW)");
-                balance = balance + bet;
+                gain = bet;
             }
             case PLAYER_BJ -> {
-                System.out.println("PLAYER BLACKJACK!");
-                balance = (int) (balance + (bet * 2.5));
+                gain = (int) (bet * 2.5);
             }
             case PLAYER_WIN, DEALER_BUST -> {
-                System.out.println("PLAYER WINS!");
-                balance = balance + (bet * 2);
+                gain = (bet * 2);
             }
             case DEALER_BJ, DEALER_WIN, PLAYER_BUST -> {
-                System.out.println("PLAYER LOSES!");
+                gain = -bet;
             }
         }
 
-        System.out.println("New balance");
-        System.out.println(balance);
-        return balance;
+        return gain;
     }
 
 }

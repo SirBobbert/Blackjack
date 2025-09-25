@@ -3,6 +3,10 @@ import java.util.List;
 
 public class Hand {
 
+
+    private int bet = 0;
+
+
     private final ArrayList<Card> cards = new ArrayList<>();
 
     public void add(Card c) {
@@ -26,6 +30,14 @@ public class Hand {
         }
         while (sum > 21 && aces-- > 0) sum -= 10;
         return sum;
+    }
+
+    public int getBet() {
+        return bet;
+    }
+
+    public void setBet(int bet) {
+        this.bet = bet;
     }
 
     public boolean isBlackjack() {
