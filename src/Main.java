@@ -3,7 +3,6 @@ public class Main {
 
         // TODO: Tests (hand value, bust, blackjack, pair of aces, can split)
         // TODO: file structure - cards/game/rules/ui
-        // TODO: Betting system
         // TODO: Insurance
         // TODO: Multiple decks (shoe(?))
         // TODO: README - how to run, rules, features, what feedback I want
@@ -11,9 +10,9 @@ public class Main {
         // TODO: Outcome "prettier" output
         // TODO: Code comments
         // TODO: Player names
-        // TODO: Player cap
         // TODO: Split up Blackjack class
         // TODO: Fix width in UI
+        // TODO: Gameplay loop
 
 
         // DONE
@@ -23,6 +22,8 @@ public class Main {
         // If active players are bust, skip dealer turn
         // Auto-stand on natural blackjack
         // KISS/DRY refactoring
+        // Betting system
+        // Player cap
 
         Blackjack blackjack = new Blackjack();
         blackjack.play();

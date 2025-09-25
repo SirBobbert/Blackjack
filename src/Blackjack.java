@@ -12,15 +12,10 @@ public class Blackjack {
     private final Map<Integer, Player> players = new LinkedHashMap<>();
     private final Hand dealerHand = new Hand();
     private boolean dealerHoleHidden = true;
-    private int playerCount = 1;
+    private int playerCount;
 
     public void play() {
         ui.headline("WELCOME TO BLACKJACK");
-        System.out.println("How many players are playing? (1-4)");
-
-        this.playerCount = scanner.nextInt();
-        // consume newline left-over
-        scanner.nextLine();
 
         seedPlayers();
         initiateBetting();
@@ -30,6 +25,37 @@ public class Blackjack {
         finishRound();
     }
 
+    private void seedPlayers() {
+
+
+        int count;
+        while (true) {
+            System.out.print("How many players are playing? (1-4)\n> ");
+            if (scanner.hasNextInt()) {
+                count = scanner.nextInt();
+                // consume newline
+                scanner.nextLine();
+                if (count >= 1 && count <= 4) {
+                    break;
+                }
+            } else {
+                ui.warn("Please enter a valid number.");
+                // discard invalid input
+                scanner.nextLine();
+            }
+        }
+        this.playerCount = count;
+
+        players.clear();
+        for (int i = 0; i < playerCount; i++) {
+            players.put(i, new Player(i));
+
+            System.out.println("Player " + (i + 1) + " is joining the game.");
+            Player p = players.get(i);
+            p.resetHands();
+        }
+    }
+
     private void initiateBetting() {
 
         for (Player p : players.values()) {
@@ -37,7 +63,7 @@ public class Blackjack {
             int bet;
             while (true) {
                 System.out.println("You have $" + p.getBalance() + ". How much do you want to bet?");
-                System.out.print("  > ");
+                System.out.print("> ");
                 String s = scanner.nextLine().trim();
                 try {
                     bet = Integer.parseInt(s);
@@ -60,16 +86,6 @@ public class Blackjack {
 
     }
 
-    private void seedPlayers() {
-        players.clear();
-        for (int i = 0; i < playerCount; i++) {
-            players.put(i, new Player(i));
-
-            System.out.println("Player " + (i + 1) + " is joining the game.");
-            Player p = players.get(i);
-            p.resetHands();
-        }
-    }
 
     public void initializeGame() {
         this.deck = new Deck();
