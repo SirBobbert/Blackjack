@@ -73,11 +73,12 @@ public class Blackjack {
 
         for (Player p : players.values()) {
 
-            // For testing purposes, force the first hand to be a pair of twos
+            // For testing purposes
             Hand h = p.getHands().getFirst();
             h.clear();
-            h.add(new Card(RANK.TWO, SUIT.HEARTS));
-            h.add(new Card(RANK.TWO, SUIT.CLUBS));
+            h.add(new Card(RANK.ACE, SUIT.HEARTS));
+            h.add(new Card(RANK.KING, SUIT.CLUBS));
+            // For testing purposes
 
             ui.headline("PLAYER " + (++seat));
 
@@ -87,7 +88,6 @@ public class Blackjack {
 
                 ui.menu("SPLIT?", "yes", "no");
 
-                // ✅ loop until user enters only 1 or 2 (y/n also allowed)
                 int splitChoice;
                 while (true) {
                     String s = scanner.nextLine().trim().toLowerCase();
@@ -111,6 +111,15 @@ public class Blackjack {
 
             for (int handIndex = 0; handIndex < p.getHands().size(); handIndex++) {
                 while (true) {
+
+
+                    // Check for blackjack on initial player hand
+                    if (p.getHands().get(handIndex).isBlackjack()) {
+                        showPlayerHand(p, handIndex, true);
+                        ui.success("Hand " + (handIndex + 1) + " has Blackjack!");
+                        break;
+                    }
+
                     int choice = promptAction(p, handIndex);
 
                     if (choice == 1) {
@@ -192,10 +201,17 @@ public class Blackjack {
 
 
     private void dealerTurn() {
-        revealDealerHole();
-        while (dealerHand.value() < 17) {
-            dealerDrawCard();
-            showDealerHand();
+
+        if (players.values().stream().allMatch(Player::isBust)) {
+            ui.headline("ALL PLAYERS BUSTED");
+            ui.info("Dealer does not play since all players have busted.");
+        } else {
+            ui.headline("DEALER");
+            revealDealerHole();
+            while (dealerHand.value() < 17) {
+                dealerDrawCard();
+                showDealerHand();
+            }
         }
     }
 
@@ -219,6 +235,7 @@ public class Blackjack {
 
     private void finishRound() {
         int seat = 0;
+        ui.headline("ROUND OVER — OUTCOMES");
         for (Player p : players.values()) {
             int handNo = 0;
             for (Hand h : p.getHands()) {

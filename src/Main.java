@@ -2,7 +2,6 @@
 public class Main {
     public static void main(String[] args) {
 
-        // TODO: Ace calculation
         // TODO: Auto-stand on natural blackjack
         // TODO: Tests (hand value, bust, blackjack, pair of aces, can split)
         // TODO: KISS/DRY refactor + file structure - cards/game/rules/ui
@@ -18,7 +17,8 @@ public class Main {
         // DONE
         // Split
         // Multiple players
-
+        // Ace calculation
+        // If active players are bust, skip dealer turn
         Blackjack blackjack = new Blackjack();
         blackjack.play();
 
