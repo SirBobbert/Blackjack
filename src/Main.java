@@ -14,7 +14,7 @@ public class Main {
 
 
         // DONE
-        // Split
+        // Splith
         // Multiple players
         // Ace calculation (soft/hard)
         // If active players are bust, skip dealer turn

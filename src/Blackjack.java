@@ -334,7 +334,7 @@ public class Blackjack {
                         .filter(this::isActive)
                         .allMatch(this::hasLiveActiveHand);
 
-        if (allActiveBusted) {
+        if (!allActiveBusted) {
             ui.headline("ALL ACTIVE PLAYERS BUSTED");
             ui.info("Dealer does not play since all active players have busted.");
             return;
