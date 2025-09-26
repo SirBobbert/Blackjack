@@ -5,16 +5,14 @@ public class Main {
         // TODO: Split up Blackjack class
         // TODO: Code comments
         // TODO: Tests (hand value, bust, blackjack, pair of aces, can split)
-        // TODO: Presentation
 
         // TODO: Insurance
         // TODO: Color code suits (red/black)
         // TODO: Outcome "prettier" output
         // TODO: Fix width in UI
 
-
         // DONE
-        // Splith
+        // Split
         // Multiple players
         // Ace calculation (soft/hard)
         // If active players are bust, skip dealer turn
@@ -25,6 +23,8 @@ public class Main {
         // Gameplay loop
         // Multiple decks
         // README - how to run, rules, features, what feedback I want
+        // Presentation
+
 
         Blackjack blackjack = new Blackjack();
         blackjack.play();
